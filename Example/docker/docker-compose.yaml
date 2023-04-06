@@ -7,17 +7,27 @@ services:
   php:
     build:
       dockerfile: php/Dockerfile
+    container_name: phpdev_php
+    restart: always
+    tty: true
+    working_dir: /var/www/html
+    ports:
+      - "9000:9000"
     volumes:
       - '../src:/var/www/html'
+      - ./php/conf/local.ini:/usr/local/etc/php/conf.d/local.ini
     depends_on:
       - mariadb
 
   # Nginx Service
   nginx:
-    image: nginx:latest
+    image: nginx:stable
+    container_name: phpdev_nginx
+    restart: always
+    tty: true
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
+      - "8443:443"
     networks:
       - internal
     links:
@@ -26,30 +36,45 @@ services:
       - "../src:/var/www/html"
       - "./nginx/conf:/etc/nginx/conf.d"
       - "./nginx/logs:/var/log/nginx/"
+      - "./nginx/ssl:/etc/nginx/ssl"
     depends_on:
       - php
 
   # MariaDB Service
   mariadb:
     image: mariadb:10.9
+    container_name: phpdev_mariadb
+    restart: always
+    tty: true
     environment:
       MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: 123456
+    ports:
+      - "3307:3306"
+    networks:
+      - internal
     volumes:
-      - mariadb/data:/var/lib/mysql
+      - './mariadb/data:/var/lib/mysql'
 
-#  # phpMyAdmin Service
-#  phpmyadmin:
-#    image: phpmyadmin/phpmyadmin:latest
-#    ports:
-#      - 8080:80
-#    environment:
-#      PMA_HOST: mariadb
-#    depends_on:
-#      - mariadb
+  redis:
+    image: redis:latest
+    sysctls:
+      - net.core.somaxconn=511
+    ports:
+      - "6379:6379"
+    volumes:
+      - './redis/data:/data'
+    networks:
+      - internal
 
 # Volumes
 volumes:
-  mysqldata:
+    mariadb_data:
+      driver: local
+    redis_data:
+      driver: local
 
 # Networks
 networks:

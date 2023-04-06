@@ -1,34 +1,25 @@
 FROM php:8.1-fpm
 
-# Arguments defined in docker-compose.yml
-ARG user
-ARG uid
-
-# Installing dependencies for the PHP modules
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip
-
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
-
-# Get latest Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Create system user to run Composer and Artisan Commands
-RUN useradd -G www-data,root -u $uid -d /home/$user $user
-RUN mkdir -p /home/$user/.composer && \
-    chown -R $user:$user /home/$user
-
 # Set working directory
 WORKDIR /var/www/html
 
-USER $user
+# installs basic tools, then postgres ppa then nodejs ppa then nodejs and postgresql-client packages
+# (and some other required dependencies). It then installs and configures several php extensions
+# including pdo_pgsql and redis. Finally, it downloads and installs composer in the image.
+RUN apt-get update \
+    && apt-get install -y gnupg curl wget ca-certificates unzip lsb-release \
+    && curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash - &&\
+    && apt-get install -y \
+        libicu-dev \
+        libpq-dev \
+        libzip-dev \
+        nodejs \
+    && php -r "readfile('http://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer \
+    && npm install -g npm \
+    && apt-get -y autoremove \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && chown -R www-data:www-data /var/www/html
+
+WORKDIR /var/www/html
+USER www-data
