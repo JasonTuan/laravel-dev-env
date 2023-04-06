@@ -6,46 +6,39 @@ services:
   # PHP Service
   php:
     build:
-      dockerfile: php/Dockerfile
-    container_name: phpdev_php
-    restart: always
-    tty: true
+      context: ./services/php
+      dockerfile: Dockerfile
+    container_name: LaravelDevPhp
     working_dir: /var/www/html
-    ports:
-      - "9000:9000"
     volumes:
       - '../src:/var/www/html'
-      - ./php/conf/local.ini:/usr/local/etc/php/conf.d/local.ini
     depends_on:
       - mariadb
 
   # Nginx Service
   nginx:
-    image: nginx:stable
-    container_name: phpdev_nginx
-    restart: always
-    tty: true
+    build:
+      context: ./services/nginx
+      dockerfile: Dockerfile
+    container_name: LaravelDevNginx
     ports:
       - "8080:80"
       - "8443:443"
-    networks:
-      - internal
+    #networks:
+    #  - internal
     links:
       - 'php'
     volumes:
       - "../src:/var/www/html"
-      - "./nginx/conf:/etc/nginx/conf.d"
-      - "./nginx/logs:/var/log/nginx/"
-      - "./nginx/ssl:/etc/nginx/ssl"
+      #- "./nginx/logs:/var/log/nginx/"
+      #- "./nginx/ssl:/etc/nginx/ssl"
     depends_on:
       - php
 
   # MariaDB Service
   mariadb:
     image: mariadb:10.9
-    container_name: phpdev_mariadb
-    restart: always
-    tty: true
+    container_name: LaravelDevMariadb
     environment:
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: laravel
@@ -53,30 +46,32 @@ services:
       MYSQL_PASSWORD: 123456
     ports:
       - "3307:3306"
-    networks:
-      - internal
+    #networks:
+    #  - internal
     volumes:
-      - './mariadb/data:/var/lib/mysql'
+      - './volumes/mysql:/var/lib/mysql'
 
+  # Caching
   redis:
     image: redis:latest
-    sysctls:
-      - net.core.somaxconn=511
     ports:
       - "6379:6379"
     volumes:
-      - './redis/data:/data'
-    networks:
-      - internal
+      - './volumes/redis:/data'
+    #networks:
+    #  - internal
 
-# Volumes
-volumes:
-    mariadb_data:
-      driver: local
-    redis_data:
-      driver: local
+  # Mailing Server
+  mailhog:
+    image: mailhog/mailhog:latest
+    tty: true
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    #networks:
+    #  - internal
 
 # Networks
-networks:
-  internal:
-    driver: bridge
+#networks:
+#  internal:
+#    driver: bridge
