@@ -6,5 +6,9 @@ docker/volumes/mysql/*
 docker/volumes/redis/*
 !docker/volumes/redis/.gitkeep
 
+!docker/volumes/logs/nginx
+docker/volumes/logs/nginx/*
+!docker/volumes/logs/nginx/.gitkeep
+
 .DS_Store
 .idea

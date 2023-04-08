@@ -4,7 +4,7 @@ WORKDIR /var/www/html
 
 COPY local.ini /usr/local/etc/php/conf.d/local.ini
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     git \
@@ -12,10 +12,13 @@ RUN apt-get update && apt-get install -y \
     locales \
     unzip \
     vim \
-    zip
-
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+    zip \
+    nano \
+    sudo \
+    ca-certificates \
+    procps  \
+    libfontconfig  \
+    tini
 
 # Install PHP extensions
 
@@ -37,19 +40,27 @@ RUN docker-php-ext-install pdo_mysql
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN composer global require laravel/installer
 
 # Install specific version of Node.js with npm through nvm
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh
-ENV NVM_DIR /usr/local/bin/nvm
-RUN mkdir -p "$NVM_DIR"; \
-    curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh" | bash \
-    ; \
-    source $NVM_DIR/nvm.sh; \
-    nvm install --lts --latest-npm ; \
-    nvm use default ;\
-    node -v ; \
-    npm -v ;
-SHELL ["/bin/bash", "--login", "-c"]
+# Users in the sudoers group can sudo as root without password.
+RUN useradd -ms /bin/bash docker && adduser docker sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN apt-get update &&\
+    apt-get install -y --no-install-recommends gnupg &&\
+    curl -sL https://deb.nodesource.com/setup_18.x | bash - &&\
+    apt-get update &&\
+    apt-get install -y --no-install-recommends nodejs
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - &&\
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list &&\
+    apt-get update &&\
+    apt-get install -y --no-install-recommends yarn
+ENV PATH="$PATH:./node_modules/.bin"
+ENV PATH="$PATH:~/.composer/vendor/bin"
+RUN echo 'export PATH=~/.composer/vendor/bin:$PATH' >> ~/.bashrc
+RUN ln -s ~/.composer/vendor/bin/laravel /usr/local/bin/laravel
+RUN chmod +x /usr/local/bin/laravel
+RUN sed -i 's#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:./node_modules/.bin:~/.composer/vendor/bin#g' /etc/sudoers
 
 RUN apt-get -y autoremove \
     && apt-get clean \

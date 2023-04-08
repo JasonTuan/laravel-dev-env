@@ -24,14 +24,11 @@ services:
     ports:
       - "8080:80"
       - "8443:443"
-    #networks:
-    #  - internal
     links:
       - 'php'
     volumes:
       - "../src:/var/www/html"
-      #- "./nginx/logs:/var/log/nginx/"
-      #- "./nginx/ssl:/etc/nginx/ssl"
+      - "./volumes/logs/nginx:/var/log/nginx/"
     depends_on:
       - php
 
@@ -46,8 +43,6 @@ services:
       MYSQL_PASSWORD: 123456
     ports:
       - "3307:3306"
-    #networks:
-    #  - internal
     volumes:
       - './volumes/mysql:/var/lib/mysql'
 
@@ -58,8 +53,6 @@ services:
       - "6379:6379"
     volumes:
       - './volumes/redis:/data'
-    #networks:
-    #  - internal
 
   # Mailing Server
   mailhog:
@@ -68,10 +61,3 @@ services:
     ports:
       - "8025:8025"
       - "1025:1025"
-    #networks:
-    #  - internal
-
-# Networks
-#networks:
-#  internal:
-#    driver: bridge
