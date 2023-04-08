@@ -20,6 +20,10 @@ Create new project
 laravel new laravel
 ```
 Move project to src folder
+## Set files permission
+```shell
+chown -R www-data:www-data /var/www/html
+```
 
 ## Config Laravel project
 Database

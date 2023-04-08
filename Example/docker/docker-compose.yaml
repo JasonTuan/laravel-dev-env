@@ -5,9 +5,10 @@ services:
 
   # PHP Service
   php:
-    build:
-      context: ./services/php
-      dockerfile: Dockerfile
+    #build:
+    #  context: ./services/php
+    #  dockerfile: Dockerfile
+    image: nntuan/php81node18:latest
     container_name: LaravelDevPhp
     working_dir: /var/www/html
     volumes:
