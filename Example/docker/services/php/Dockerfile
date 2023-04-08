@@ -56,8 +56,6 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - &&\
     apt-get update &&\
     apt-get install -y --no-install-recommends yarn
 ENV PATH="$PATH:./node_modules/.bin"
-ENV PATH="$PATH:~/.composer/vendor/bin"
-RUN echo 'export PATH=~/.composer/vendor/bin:$PATH' >> ~/.bashrc
 RUN ln -s ~/.composer/vendor/bin/laravel /usr/local/bin/laravel
 RUN chmod +x /usr/local/bin/laravel
 RUN sed -i 's#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:./node_modules/.bin:~/.composer/vendor/bin#g' /etc/sudoers

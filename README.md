@@ -1,14 +1,53 @@
 # laravel-dev-env
 Docker composer for Laravel develop environment
 
-### How to get docker-compose to always re-create containers from fresh images?
+## Getting Started
+Access to docker folder and run command
 ```shell
-docker-compose rm -f
-docker-compose pull
 docker-compose up --build -d
-# Run some tests
-./tests
-docker-compose stop -t 1
+```
+
+## Setup Laravel project
+### From existing project
+Copy your project to src folder
+### From new project
+Goto LaravelDevPhp container
+```shell
+docker exec -it LaravelDevPhp /bin/bash
+```
+Create new project
+```shell
+laravel new laravel
+```
+Move project to src folder
+
+## Config Laravel project
+Database
+```shell
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3307
+DB_DATABASE=laravel
+DB_USERNAME=laravel
+DB_PASSWORD=123456
+```
+MailHog
+```shell
+MAIL_MAILER=smtp
+MAIL_HOST=127.0.0.1
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+## Access to the container
+```shell
+docker exec -it LaravelDevPhp /bin/bash
+docker exec -it LaravelDevNginx /bin/bash
+docker exec -it LaravelDevMariadb /bin/bash
 ```
 
 ### References
