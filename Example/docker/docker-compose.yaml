@@ -13,8 +13,14 @@ services:
     working_dir: /var/www/html
     volumes:
       - '../src:/var/www/html'
+    links:
+      - 'mariadb'
+      - 'redis'
+      - 'mailhog'
     depends_on:
       - mariadb
+      - redis
+      - mailhog
 
   # Nginx Service
   nginx:
@@ -50,15 +56,17 @@ services:
   # Caching
   redis:
     image: redis:latest
+    container_name: LaravelDevRedis
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - './volumes/redis:/data'
 
   # Mailing Server
   mailhog:
     image: mailhog/mailhog:latest
+    container_name: LaravelDevMailhog
     tty: true
     ports:
-      - "8025:8025"
-      - "1025:1025"
+      - "8030:8025"
+      - "1030:1025"
