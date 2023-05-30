@@ -18,6 +18,7 @@ docker exec -it LaravelDevPhp /bin/bash
 Create new project
 ```shell
 laravel new laravel
+composer create-project laravel/laravel:^9.0 example-app
 ```
 Move project to src folder
 ## Set files permission
