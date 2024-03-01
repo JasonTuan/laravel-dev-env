@@ -8,7 +8,7 @@ services:
     #build:
     #  context: ./services/php
     #  dockerfile: Dockerfile
-    image: nntuan/php81node18:latest
+    image: nntuan/php83node21:latest
     container_name: LaravelDevPhp
     working_dir: /var/www/html
     volumes:
@@ -41,7 +41,7 @@ services:
 
   # MariaDB Service
   mariadb:
-    image: mariadb:10.9
+    image: mariadb:latest
     container_name: LaravelDevMariadb
     environment:
       MYSQL_ROOT_PASSWORD: 123456
