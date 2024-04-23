@@ -1,0 +1,22 @@
+version: '3.8'
+
+name: "frontend-dev"
+
+# Services
+services:
+
+  # Nginx Service
+  nginx:
+    build:
+      context: ./services/nginx
+      dockerfile: Dockerfile
+    container_name: FrontendDevNginx
+    ports:
+      - "9494:80"
+      - "9443:443"
+      - "4200:4200"
+      - "8000:8000"
+      - "3000:3000"
+    volumes:
+      - "../src:/var/www/html"
+      - "./volumes/logs/nginx:/var/log/nginx/"
